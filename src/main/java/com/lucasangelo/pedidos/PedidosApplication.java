@@ -1,5 +1,6 @@
 package com.lucasangelo.pedidos;
 
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 
 import com.lucasangelo.pedidos.domain.Categoria;
@@ -7,13 +8,20 @@ import com.lucasangelo.pedidos.domain.Cidade;
 import com.lucasangelo.pedidos.domain.Cliente;
 import com.lucasangelo.pedidos.domain.Endereco;
 import com.lucasangelo.pedidos.domain.Estado;
+import com.lucasangelo.pedidos.domain.Pagamento;
+import com.lucasangelo.pedidos.domain.PagamentoComBoleto;
+import com.lucasangelo.pedidos.domain.PagamentoComCartao;
+import com.lucasangelo.pedidos.domain.Pedido;
 import com.lucasangelo.pedidos.domain.Produto;
+import com.lucasangelo.pedidos.domain.enums.EstadoPagamento;
 import com.lucasangelo.pedidos.domain.enums.TipoCliente;
 import com.lucasangelo.pedidos.repositories.CategoriaRepository;
 import com.lucasangelo.pedidos.repositories.CidadeRepository;
 import com.lucasangelo.pedidos.repositories.ClienteRepository;
 import com.lucasangelo.pedidos.repositories.EnderecoRepository;
 import com.lucasangelo.pedidos.repositories.EstadoRepository;
+import com.lucasangelo.pedidos.repositories.PagamentoRepository;
+import com.lucasangelo.pedidos.repositories.PedidoRepository;
 import com.lucasangelo.pedidos.repositories.ProdutoRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,21 +34,20 @@ public class PedidosApplication implements CommandLineRunner {
 	
 	@Autowired
 	private CategoriaRepository categoriaRepository;
-
 	@Autowired
 	private ProdutoRepository produtoRepository;
-
 	@Autowired
 	private EstadoRepository estadoRepository;
-
 	@Autowired
 	private CidadeRepository cidadeRepository;
-
 	@Autowired
 	private ClienteRepository clienteRepository;
-
 	@Autowired
 	private EnderecoRepository enderecoRepository;
+	@Autowired
+	private PedidoRepository pedidoRepository;
+	@Autowired
+	private PagamentoRepository pagamentoRepository;
 
 	public static void main(String[] args) {
 		SpringApplication.run(PedidosApplication.class, args);
@@ -105,6 +112,24 @@ public class PedidosApplication implements CommandLineRunner {
 		// Salvando os endereços e cliente no banco de dados (Respeitando "o todo" Cliente)
 		clienteRepository.saveAll(Arrays.asList(cli1));
 		enderecoRepository.saveAll(Arrays.asList(e1, e2));
+
+
+		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+
+		Pedido ped1 = new Pedido(null, sdf.parse("30/09/2017 10:32"), cli1, e1);
+		Pedido ped2 = new Pedido(null, sdf.parse("10/10/2017 19:35"), cli1, e2);
+
+		Pagamento pagto1 = new PagamentoComCartao(null, EstadoPagamento.QUITADO, ped1, 6);
+		Pagamento pagto2 = new PagamentoComBoleto(null, EstadoPagamento.PENDENTE, ped2, sdf.parse("20/10/2017 00:00"), null);
+
+		ped1.setPagamento(pagto1);
+		ped2.setPagamento(pagto2);
+
+		cli1.getPedidos().addAll(Arrays.asList(ped1, ped2));
+
+		pedidoRepository.saveAll(Arrays.asList(ped1, ped2));
+		pagamentoRepository.saveAll(Arrays.asList(pagto1, pagto2));
+
 	}
 
 }
