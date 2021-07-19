@@ -22,4 +22,9 @@ public class CategoriaService {
         ); 
     }
 
+    public Categoria insert(Categoria obj) {
+        obj.setId(null); // Pois se vir com id, vai atualizar ao invés de criar um novo
+        return repo.save(obj);
+    }
+
 }
