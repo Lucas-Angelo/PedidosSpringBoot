@@ -1,8 +1,11 @@
 package com.lucasangelo.pedidos.resources;
 
 import java.net.URI;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import com.lucasangelo.pedidos.domain.Categoria;
+import com.lucasangelo.pedidos.dto.CategoriaDTO;
 import com.lucasangelo.pedidos.services.CategoriaService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,6 +50,13 @@ public class CategoriaResource {
     public ResponseEntity<Void> delete(@PathVariable Integer id) {
         service.deleteById(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @RequestMapping(method = RequestMethod.GET)
+    public ResponseEntity<List<CategoriaDTO>> findAll() {
+        List<Categoria> list = service.findAll();
+        List<CategoriaDTO> listDTO = list.stream().map(obj -> new CategoriaDTO(obj)).collect(Collectors.toList());
+        return ResponseEntity.ok().body(listDTO);
     }
 
 }
